@@ -1,6 +1,6 @@
 # Changes made
 
-The changes were made in main.js and serve to work with the conversion script and/or fix indentation problems.
+The changes were made in [main.js](https://github.com/envico801/obsidian-config/blob/main/.obsidian/plugins/obsidian-to-anki-plugin/main.js) and serve to work with the [conversion script](https://github.com/envico801/obsidian-to-anki-card-converter) and/or fix indentation problems.
 
 ```javascript
 // @#@# text = text.replace(/(?:^|\n)(?: {0,3})(```+|~~~+)(?: *)([^\s`~]*)\n([\s\S]*?)\n(?: {0,3})\1/g, function (wholeMatch, delim, language, codeblock) {
@@ -22,4 +22,4 @@ text = text.replace(/(\n\n|^\n?)(( {0,3}([*+-]|\d+[.])[ \t]+)[^\r]+?(¨0|\n{2,}(
 const HIGHLIGHT_REGEXP = /@#@#@#@/g;
 ```
 
-Check the configuration folder to know what changes to take into account.
+Check the [configuration folder](https://github.com/envico801/obsidian-config/tree/main/Configuration%20of%20individual%20plugins/obsidian-to-anki-plugin) to know what changes to take into account.
