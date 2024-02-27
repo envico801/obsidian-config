@@ -4484,7 +4484,8 @@ showdown.subParser('githubCodeBlocks', function (text, options, globals) {
 
   text += '¨0';
 
-  text = text.replace(/(?:^|\n)(?: {0,3})(```+|~~~+)(?: *)([^\s`~]*)\n([\s\S]*?)\n(?: {0,3})\1/g, function (wholeMatch, delim, language, codeblock) {
+  // @#@# text = text.replace(/(?:^|\n)(?: {0,3})(```+|~~~+)(?: *)([^\s`~]*)\n([\s\S]*?)\n(?: {0,3})\1/g, function (wholeMatch, delim, language, codeblock) {
+  text = text.replace(/(```+|~~~+)(?: *)([^\s`~]*)\n([\s\S]*?)\n(?: {0,3})\1/g, function (wholeMatch, delim, language, codeblock) {
     var end = (options.omitExtraWLInCodeBlocks) ? '' : '\n';
 
     // First parse the github code block
@@ -4500,7 +4501,8 @@ showdown.subParser('githubCodeBlocks', function (text, options, globals) {
     // Since GHCodeblocks can be false positives, we need to
     // store the primitive text and the parsed text in a global var,
     // and then return a token
-    return '\n\n¨G' + (globals.ghCodeBlocks.push({text: wholeMatch, codeblock: codeblock}) - 1) + 'G\n\n';
+    // @#@# return '\n\n¨G' + (globals.ghCodeBlocks.push({text: wholeMatch, codeblock: codeblock}) - 1) + 'G\n\n';
+    return '¨G' + (globals.ghCodeBlocks.push({text: wholeMatch, codeblock: codeblock}) - 1) + 'G\n\n';
   });
 
   // attacklab: strip sentinel
@@ -5238,7 +5240,8 @@ showdown.subParser('lists', function (text, options, globals) {
       }
     );
   } else {
-    text = text.replace(/(\n\n|^\n?)(( {0,3}([*+-]|\d+[.])[ \t]+)[^\r]+?(¨0|\n{2,}(?=\S)(?![ \t]*(?:[*+-]|\d+[.])[ \t]+)))/gm,
+    // @#@# text = text.replace(/(\n\n|^\n?)(( {0,3}([*+-]|\d+[.])[ \t]+)[^\r]+?(¨0|\n{2,}(?=\S)(?![ \t]*(?:[*+-]|\d+[.])[ \t]+)))/gm,
+    text = text.replace(/(\n\n|^\n?)(( {0,3}([*+-]|\d+[.])[ \t]+)[^\r]+?(¨0|\n{2,}(((\s{3,}¨G\dG\n{1,}\s{3,}[\s\S]*?)(?=(\n^\S)))|(?=\S))(?![ \t]*(?:[*+-]|\d+[.])[ \t]+)))/gm,
       function (wholeMatch, m1, list, m3) {
         var listType = (m3.search(/[*+-]/g) > -1) ? 'ul' : 'ol';
         return parseConsecutiveLists(list, listType, false);
@@ -30099,7 +30102,7 @@ var lib$2 = function showdownHighlight() {
 };
 
 const ANKI_MATH_REGEXP = /(\\\[[\s\S]*?\\\])|(\\\([\s\S]*?\\\))/g;
-// const HIGHLIGHT_REGEXP = /==(.*?)==/g;
+// @#@# const HIGHLIGHT_REGEXP = /==(.*?)==/g;
 const HIGHLIGHT_REGEXP = /@#@#@#@/g;
 const MATH_REPLACE = "OBSTOANKIMATH";
 const INLINE_CODE_REPLACE = "OBSTOANKICODEINLINE";
