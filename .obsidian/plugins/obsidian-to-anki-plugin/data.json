@@ -5,16 +5,15 @@
       "Basic (and reversed card)": "",
       "Basic (optional reversed card)": "",
       "Basic (type in the answer)": "",
-      "Cloze": "",
       "BasicWithID": "^={20} Question ={20} *((?:(?!={20} Answer ={20})[\\s\\S])+)\\n*={20} Answer ={20} *((?:(?!={20} Id ={20})[\\s\\S])+)\\n*={20} Id ={20} *([\\s\\S]*?)(?=(\\n---\\n\\nDECK INFO|\\n?(?:<!--)?(?:ID: (\\d+).*)))",
-      "Cloze+": "",
-      "Cloze++": ""
+      "Cloze": ""
     },
     "FILE_LINK_FIELDS": {
       "Basic": "Front",
       "Basic (and reversed card)": "Front",
       "Basic (optional reversed card)": "Front",
       "Basic (type in the answer)": "Front",
+      "BasicWithID": "Front",
       "Cloze": "Text"
     },
     "CONTEXT_FIELDS": {},
@@ -62,10 +61,6 @@
       "Front",
       "Back"
     ],
-    "Basic+": [
-      "Front",
-      "Back"
-    ],
     "BasicWithID": [
       "Front",
       "Back",
@@ -74,14 +69,6 @@
     "Cloze": [
       "Text",
       "Back Extra"
-    ],
-    "Cloze+": [
-      "Tekst",
-      "Extra"
-    ],
-    "Cloze++": [
-      "Text",
-      "Extra"
     ]
   }
 }
