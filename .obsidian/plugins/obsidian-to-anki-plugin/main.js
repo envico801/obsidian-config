@@ -483,7 +483,8 @@ const TAG_PREFIX = "Tags: ";
 const TAG_SEP = " ";
 const ID_REGEXP_STR = String.raw `\n?(?:<!--)?(?:ID: (\d+).*)`;
 const TAG_REGEXP_STR = String.raw `(Tags: .*)`;
-const OBS_TAG_REGEXP = /#(\w+)/g;
+// @#@# const OBS_TAG_REGEXP = /#(\w+)/g;
+const OBS_TAG_REGEXP = /#([\p{L}\p{N}\p{Emoji}\p{M}_/-]+)/gu;
 const ANKI_CLOZE_REGEXP = /{{c\d+::[\s\S]+?}}/;
 const CLOZE_ERROR = 42;
 const NOTE_TYPE_ERROR = 69;
@@ -4725,14 +4726,34 @@ showdown.subParser('unhashHTMLSpans', function (text, options, globals) {
 showdown.subParser('hashPreCodeTags', function (text, options, globals) {
   text = globals.converter._dispatch('hashPreCodeTags.before', text, options, globals);
 
-  var repFunc = function (wholeMatch, match, left, right) {
-    // encode html entities
-    var codeblock = left + showdown.subParser('encodeCode')(match, options, globals) + right;
-    return '\n\n¨G' + (globals.ghCodeBlocks.push({text: wholeMatch, codeblock: codeblock}) - 1) + 'G\n\n';
-  };
+  const customCodeblockRegex = / *<!-- codeblock-start -->([\s\S]*?)<!-- codeblock-end -->/g
 
-  // Hash <pre><code>
-  text = showdown.helper.replaceRecursiveRegExp(text, repFunc, '^ {0,3}<pre\\b[^>]*>\\s*<code\\b[^>]*>', '^ {0,3}</code>\\s*</pre>', 'gim');
+  const isThereACustomCodeblock = text.match(customCodeblockRegex)
+
+  if (isThereACustomCodeblock) {
+      for (let codeblock of isThereACustomCodeblock) {
+          const id = '¨G' + (globals.ghCodeBlocks.push({text: codeblock, codeblock}) - 1) + 'G\n\n';
+          text = text.replace(codeblock.trim(), id)
+      }
+  } else {
+      var repFunc = function (wholeMatch, match, left, right) {
+          // encode html entities
+          var codeblock = left + showdown.subParser('encodeCode')(match, options, globals) + right;
+          return '\n\n¨G' + (globals.ghCodeBlocks.push({text: wholeMatch, codeblock: codeblock}) - 1) + 'G\n\n';
+      };
+
+      // Hash <pre><code>
+      text = showdown.helper.replaceRecursiveRegExp(text, repFunc, '^ {0,3}<pre\\b[^>]*>\\s*<code\\b[^>]*>', '^ {0,3}</code>\\s*</pre>', 'gim');
+  }
+    // @#@#
+    // var repFunc = function (wholeMatch, match, left, right) {
+    //     // encode html entities
+    //     var codeblock = left + showdown.subParser('encodeCode')(match, options, globals) + right;
+    //     return '\n\n¨G' + (globals.ghCodeBlocks.push({text: wholeMatch, codeblock: codeblock}) - 1) + 'G\n\n';
+    // };
+    //
+    // // Hash <pre><code>
+    // text = showdown.helper.replaceRecursiveRegExp(text, repFunc, '^ {0,3}<pre\\b[^>]*>\\s*<code\\b[^>]*>', '^ {0,3}</code>\\s*</pre>', 'gim');
 
   text = globals.converter._dispatch('hashPreCodeTags.after', text, options, globals);
   return text;
@@ -5399,7 +5420,29 @@ showdown.subParser('paragraphs', function (text, options, globals) {
 showdown.subParser('runExtension', function (ext, text, options, globals) {
 
   if (ext.filter) {
-    text = ext.filter(text, globals.converter, options);
+      // @#@# text = ext.filter(text, globals.converter, options);
+
+      const customCodeblockRegex = / *<!-- codeblock-start -->([\s\S]*?)<!-- codeblock-end -->/g
+      const codeblockStartTagRegex = /<!-- codeblock-start -->\s*/g
+      const codeblockEndTagRegex = /\s*<!-- codeblock-end -->/g
+      const isThereACustomCodeblock = text.match(customCodeblockRegex)
+      const codeblocksDict = {}
+
+      if (isThereACustomCodeblock) {
+          for (let i = 0; i < isThereACustomCodeblock.length; i++) {
+              let codeblock = isThereACustomCodeblock[i]
+              codeblock = codeblock.replace(codeblockStartTagRegex, "")
+              codeblock = codeblock.replace(codeblockEndTagRegex, "")
+              codeblocksDict[i] = codeblock
+              text = text.replace(isThereACustomCodeblock[i], `<p>C${i}C</p>`)
+          }
+      }
+
+      text = ext.filter(text, globals.converter, options);
+
+      for (let numKey in codeblocksDict) {
+          text = text.replace(`<p>C${numKey}C</p>`, codeblocksDict[numKey])
+      }
 
   } else if (ext.regex) {
     // TODO remove this when old extension loading mechanism is deprecated
@@ -30141,7 +30184,31 @@ class FormatConverter {
         return "obsidian://open?vault=" + encodeURIComponent(this.vault_name) + String.raw `&file=` + encodeURIComponent(link);
     }
     format_note_with_url(note, url, field) {
-        note.fields[field] += '<br><a href="' + url + '" class="obsidian-link">Obsidian</a>';
+        // @#@# note.fields[field] += '<br><a href="' + url + '" class="obsidian-link">Obsidian</a>';
+
+        let mdFilename = ""
+
+        // We separate the string by "&file=".
+        const splitUrl = url.split("&file=");
+
+        // Check if the split resulted in two parts
+        if (splitUrl.length === 2) {
+            // Extract the part after "&file="
+            const encodedPathWithExtension = splitUrl[1]; // Extracted part containing path with extension
+            const decodedPathWithExtension = decodeURIComponent(encodedPathWithExtension);
+
+            // Split the filename from its directory path
+            const pathSegments = decodedPathWithExtension.split('/');
+            const filenameWithExtension = pathSegments.pop()?.trim();
+
+            // Check if the filename with extension is not empty
+            if (filenameWithExtension) {
+                // Split the filename from its extension
+                const filenameSegments = filenameWithExtension.split('.');
+                mdFilename = filenameSegments[0]?.trim();
+            }
+        }
+        note.fields[field] += '<br><a href="' + url + `" class="obsidian-link">Obsidian${mdFilename ? " - " + mdFilename : ""}</a>`;
     }
     format_note_with_frozen_fields(note, frozen_fields_dict) {
         for (let field in note.fields) {
