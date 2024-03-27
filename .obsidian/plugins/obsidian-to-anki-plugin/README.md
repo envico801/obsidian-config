@@ -35,11 +35,11 @@ const HIGHLIGHT_REGEXP = /@#@#@#@/g;
 This changes the way mathematical expressions are selected, they now use the `§` symbol instead of the `$` symbol *(conflicts with javascript 💀)*.
 
 ```javascript
-// const OBS_INLINE_MATH_REGEXP = /(?<!\$)\$((?=[\S])(?=[^$])[\s\S]*?\S)\$/g;
+// @#@# const OBS_INLINE_MATH_REGEXP = /(?<!\$)\$((?=[\S])(?=[^$])[\s\S]*?\S)\$/g;
 const OBS_INLINE_MATH_REGEXP = /(?<!\§)\§((?=[\S])(?=[^$])[\s\S]*?\S)\§/g;
 ```
 ```javascript
-// const OBS_DISPLAY_MATH_REGEXP = /\$\$([\s\S]*?)\$\$/g;
+// @#@# const OBS_DISPLAY_MATH_REGEXP = /\$\$([\s\S]*?)\$\$/g;
 const OBS_DISPLAY_MATH_REGEXP = /\§\§([\s\S]*?)\§\§/g;
 ```
 
